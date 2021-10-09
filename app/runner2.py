@@ -1,3 +1,3 @@
-from scripts.gen_specificity import gen_spec
+from scripts.gen_terror_attack_basic import gen_terrorists
 
-gen_spec()
+gen_terrorists()
