@@ -1,6 +1,8 @@
 #Dash app
 dash
 pandas
+dash-bootstrap-components
+dash_daq
 gunicorn
 
 #db
@@ -9,3 +11,4 @@ SQLAlchemy==1.4.22
 SQLAlchemy-serializer==1.4.1
 alembic==1.4.2
 psycopg2
+
