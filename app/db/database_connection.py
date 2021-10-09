@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db.models import Base
-from util.cred_handler import get_secret
+from utils.cred_handler import get_secret
 
 engine = None
 
