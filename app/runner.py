@@ -1,3 +1,3 @@
-from scripts.city_generator import gen_cities
+from scripts.gen_counties import gen_countries
 
-gen_cities()
+gen_countries()
