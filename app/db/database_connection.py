@@ -1,13 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db.models import Base
-from util.cred_handler import get_secret
+from utils.cred_handler import get_secret
 
 engine = None
 
 
 def initialize():
-    engine = create_engine(get_secret('connection_string'), pool_pre_ping=True)
+    engine = create_engine(get_secret('connection_string'), pool_pre_ping=True, client_encoding='utf8')
     Base.metadata.bind = engine
 
 

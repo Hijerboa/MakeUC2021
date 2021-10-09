@@ -7,7 +7,7 @@ import logging
 
 # we're appending the app directory to our path here so that we can import config easily
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
-from app.util.cred_handler import get_secret
+from app.utils.cred_handler import get_secret
 from app.db.models import Base
 
 DATABASE_URL = get_secret("connection_string")
