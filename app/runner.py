@@ -1,3 +1,4 @@
-from scripts.gen_counties import gen_countries
+from server.server import get_app
 
-gen_countries()
+if __name__ == '__main__':
+    get_app().run_server(debug=True)
