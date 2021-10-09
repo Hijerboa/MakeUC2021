@@ -1,3 +1,5 @@
 #Dash app
 dash
 pandas
+dash-bootstrap-components
+dash_daq
