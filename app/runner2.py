@@ -1,4 +1,3 @@
-from scripts.prov_state_generator import gen_prov_state
+from scripts.gen_specificity import gen_spec
 
-gen_prov_state()
-
+gen_spec()
