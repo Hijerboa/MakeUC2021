@@ -46,6 +46,13 @@ class Specificity(Base):
     description = Column(String(length=512), nullable=False)
 
 
+class Location(Base):
+    __tablename__ = 'location'
+
+    id = Column(Integer(), nullable=False, primary_key=True)
+    name = Column(String(length=512), nullable=False)
+
+
 class TerroristAct(Base):
     __tablename__ = 'terrorist_act'
 
@@ -63,4 +70,6 @@ class TerroristAct(Base):
     latitude = Column(Float(), nullable=False)
     longitude = Column(Float(), nullable=False)
     specificity = Column(Integer(), ForeignKey('specificity.id'), nullable=False)
-
+    vicinity = Column(Boolean(), nullable=True)
+    location = Column(Integer(), ForeignKey('location.id'), nullable=False)
+    summary = Column(String(length=4096), nullable=True)
