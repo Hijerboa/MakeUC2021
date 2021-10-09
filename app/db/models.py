@@ -57,9 +57,7 @@ class TerroristAct(Base):
     __tablename__ = 'terrorist_act'
 
     id = Column(Integer, primary_key=True)
-    year = Column(Integer, nullable=False)
-    month = Column(Integer(), nullable=False)
-    day = Column(Integer(), nullable=False)
+    date = Column(Date(), nullable=False)
     approx_date = Column(String(length=64), nullable=True)
     extended = Column(Boolean(), nullable=False)
     resolution = Column(Integer(), nullable=True)
