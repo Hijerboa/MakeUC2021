@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, ForeignKey, String, Boolean, Float, UniqueConstraint, LargeBinary, \
-    Table, DateTime, Date
+    Table, DateTime, Date, BigInteger
 from sqlalchemy.orm import relationship
 import datetime
 
@@ -56,11 +56,11 @@ class Location(Base):
 class TerroristAct(Base):
     __tablename__ = 'terrorist_act'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger(), primary_key=True)
     date = Column(Date(), nullable=False)
     approx_date = Column(String(length=64), nullable=True)
     extended = Column(Boolean(), nullable=False)
-    resolution = Column(Integer(), nullable=True)
+    resolution = Column(Date(), nullable=True)
     country = Column(Integer(), ForeignKey('country.id'))
     region = Column(Integer(), ForeignKey('region.id'))
     prov_state = Column(Integer(), ForeignKey('prov_state.id'))
@@ -69,5 +69,5 @@ class TerroristAct(Base):
     longitude = Column(Float(), nullable=False)
     specificity = Column(Integer(), ForeignKey('specificity.id'), nullable=False)
     vicinity = Column(Boolean(), nullable=True)
-    location = Column(Integer(), ForeignKey('location.id'), nullable=False)
+    location = Column(Integer(), ForeignKey('location.id'), nullable=True)
     summary = Column(String(length=4096), nullable=True)
