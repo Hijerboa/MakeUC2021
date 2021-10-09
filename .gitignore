@@ -2,3 +2,5 @@ app/utils/cred.json
 MakeUC2021
 .idea
 app/*/__pycache__
+app/scripts/data.csv
+app/TestNotebook.ipynb
