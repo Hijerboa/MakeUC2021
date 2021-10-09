@@ -13,7 +13,7 @@ def get_secret(requested: str):
         return cached[requested]
 
     cred_file = os.path.dirname(os.path.dirname(__file__))
-    cred_file = os.path.join(cred_file, 'util', 'cred.json')
+    cred_file = os.path.join(cred_file, 'utils', 'cred.json')
     if os.path.isfile(cred_file):
         with open(cred_file) as file:
             secrets = json.load(file)
