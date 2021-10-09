@@ -3,3 +3,5 @@ MakeUC2021
 .idea
 app/*/__pycache__
 venv/
+app/scripts/data.csv
+app/TestNotebook.ipynb

@@ -7,7 +7,7 @@ engine = None
 
 
 def initialize():
-    engine = create_engine(get_secret('connection_string'), pool_pre_ping=True)
+    engine = create_engine(get_secret('connection_string'), pool_pre_ping=True, client_encoding='utf8')
     Base.metadata.bind = engine
 
 
