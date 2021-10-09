@@ -1,3 +1,4 @@
 #Dash app
 dash
 pandas
+dash-bootstrap-components
