@@ -28,6 +28,8 @@ def gen_terrorists():
                     'vicinity': int(row['vicinity']),
                     'summary': row['summary']
                 }
+                if basic_info['vicinity'] == -9:
+                    basic_info['vicinity'] = None
                 if row['imonth'] == '0':
                     month = 1
                 else:
