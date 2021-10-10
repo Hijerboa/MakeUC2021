@@ -226,11 +226,6 @@ def get_app():
     max_months = (max_year - min_year) * 12
 
     index_layout = html.Div(children=[
-<<<<<<< HEAD
-        dcc.RangeSlider(id='date-slider', min=0, max=100, value=[0,20]),
-        dcc.Graph(id='map-graph', figure=get_fig(), style={'height': '55vh'}),
-        html.Div(id='summary-container', children='')
-=======
         dcc.RangeSlider(id='date-slider', min=0, max=max_months, value=[0,max_months], marks=marks),
         dcc.Graph(id='map-graph', figure=get_map_fig(df), style={'height':'50vh'}),
         html.Div(id='bottom-container', children=[
@@ -246,7 +241,6 @@ def get_app():
                 ]),
             ])
         ])
->>>>>>> main
     ])
 
     about_layout = html.Div(children=[
