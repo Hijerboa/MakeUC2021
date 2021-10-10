@@ -12,14 +12,14 @@
         "Front-end/Front-end development"
     ],
     "References": [
-        "Global Terrorism Database - https://www.kaggle.com/START-UMD/gtd"
+        "https://www.kaggle.com/START-UMD/gtd"
     ],
     "Reason": [
         "An average of 21,000 people worldwide are killed each year due to terrorism.",
         "With terrorism being such an impactful concept in today's society, we thought",
         "it would be an interesting tool to be able to see where these attacks are most",
-        "frequent, and how severe they can get. This Global Terrorism Database contains",
-        "47 years of data on more than 180,000 terrorist attacks worldwide from the years",
-        "of 1970-2017. "
+        "frequent, and how severe they can get. This Global Terrorism Database found",
+        "on Kaggle contains 47 years of data on more than 180,000 terrorist attacks ",
+        "worldwide from the years of 1970-2017, which we mapped across the globe."
     ]
 }

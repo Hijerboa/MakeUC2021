@@ -262,7 +262,7 @@ def get_app():
         )
     ])
 
-    ref_children = [about_content['References'][0], html.Br()]
+    ref_children = [html.A('Global Terrorism Database', href=about_content['References'][0], target="_blank"), html.Br()]
     for reason in about_content[
         'Reason'
         ]:
