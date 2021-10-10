@@ -16,6 +16,7 @@ import random
 import time
 import math
 import numpy as np
+from utils.about import 
 
 if __name__ == '__main__':
     conn.initialize()
@@ -41,8 +42,9 @@ def get_df():
         TerroristAct.ransom_amt,
         Region.name).\
             where(TerroristAct.region == Region.id).\
-                order_by(func.random()).\
-                    limit(10000).all()
+                all()
+                #order_by(func.random()).\
+                #    limit(10000).all()
 
     t_query = time.time()
     print(f'Query took {t_query - start} seconds.')
@@ -244,14 +246,35 @@ index_layout = html.Div(children=[
     ])
 ])
 
+about_children = []
+about_content = get_about()
+for i, contributor in enumerate(about_content['Contributors']):
+    contribution = about_content['Contributions'][i]
+    contrib_content = f'{contributor} - {contribution}'
+    about_children.append(html.Span(contrib_content))
+    about_children.append(html.Br())
+
 about_layout = html.Div(children=[
-    html.H1(id='about-header', children='Welcome to our about page!'),
-    html.P(id='about-text', children='text')
+    html.H3(id='about-header', children='About the Devs'),
+    html.P(id='about-text', children=
+        about_children,
+        className='page-text'
+    )
 ])
 
+ref_children = [about_content['References'][0], html.Br()]
+for reason in about_content[
+    'Reason'
+    ]:
+    ref_children.append(html.Span(reason))
+    ref_children.append(html.Br())
+
 ref_layout = html.Div(children=[
-    html.H1(id='ref-header', children='Welcome to our reference page!'),
-    html.P(id='ref-text', children='text')
+    html.H3(id='ref-header', children='References'),
+    html.P(id='ref-text', children=
+        ref_children,
+        className='page-text'
+    )
 ])
 
 # Update the index
@@ -355,4 +378,4 @@ def display_hover_data(hoverData):
     return ret_elems
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0')
+    app.run_server(debug=False, host='0.0.0.0')
