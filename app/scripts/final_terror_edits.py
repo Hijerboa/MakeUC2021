@@ -15,10 +15,6 @@ def search_list(list, search_id):
 def gen_terrorists():
     initialize()
     session = create_session()
-    """all_objects_query = session.query(TerroristAct).limit(1000).offset(1000)
-    all_objects = []
-    for object in all_objects_query:
-        all_objects.append(object)"""
     print('Objects added')
     with open('scripts/data.csv', encoding = "ISO-8859-1") as csv_file:
         csv_reader = csv.DictReader(csv_file, delimiter=',')
@@ -34,30 +30,33 @@ def gen_terrorists():
                     print("None found :(")
                     continue
                 print(db_object.id)
-                if row['doubtterr'] == 1:
-                    db_object.doubout_terrorism = True
-                elif row['doubtterr'] == 0:
-                    db_object.doubout_terrorism = False
-                if not row['alternative'] == '':
-                    db_object.alt_designation = int(row['alternative'])
-                if not row['multiple'] == '':
-                    db_object.part_of_multiple = int(row['multiple'])
 
-                # casualties
-                if not row['nkill'] == '':
-                    db_object.num_killed = int(row['nkill'])
-                if not row['nkillus'] == '':
-                    db_object.num_killed_us = int(row['nkillus'])
-                if not row['nkillter'] == '':
-                    db_object.num_perp_killed = int(row['nkillter'])
-                if not row['nwound'] == '':
-                    string = row['nwound']
-                    string_split = string.split('.')
-                    db_object.num_injured = int(string_split[0])
-                if not row['nwoundus'] == '':
-                    db_object.num_injured_us = int(row['nwoundus'])
-                if not row['nwoundte'] == '':
-                    db_object.num_perp_wounded = int(row['nwoundte'])
+                db_object.success = int(row['success'])
+                db_object.suicide = int(row['suicide'])
+
+                if int(row['property']) == 1:
+                    db_object.prop_dam = int(row['property'])
+                    if not row['prop_extent'] == '':
+                        db_object.prop_dam_ext = int(row['prop_extent'])
+                    if not row['propvalue'] == '':
+                        db_object.prop_dam_value = int(row['propvalue'])
+                    if not row['propcomment'] == '':
+                        db_object.prop_comment = row['propcomment']
+                elif int(row['property']) == 0:
+                    db_object.prop_dam = int(row['property'])
+
+                if int(row['ishostkid']) == 1:
+                    db_object.hostages = int(row['ishostkid'])
+                    if not row['nhostkid'] == '':
+                        db_object.num_hostages = int(row['nhostkid'])
+                    if not row['nhostkidus'] == '':
+                        db_object.num_hostages_us = int(row['nhostkidus'])
+                    if not row['ransom'] == '-9' and not row['ransom'] == '':
+                        db_object.ransom = int(row['ransom'])
+                        if not row['ransomamt'] == '':
+                            db_object.ransom_amt = int(row['ransomamt'])
+                elif int(row['ishostkid']) == 0:
+                    db_object.hostages = int(row['ishostkid'])
 
                 objects.append(db_object)
                 line_count += 1

@@ -5,3 +5,4 @@ app/*/__pycache__
 venv/
 app/scripts/data.csv
 app/TestNotebook.ipynb
+app/scripts/data.csv:Zone.Identifier
