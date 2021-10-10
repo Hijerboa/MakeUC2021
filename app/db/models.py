@@ -7,6 +7,13 @@ import datetime
 Base = declarative_base()
 
 
+act_to_attack_types = Table(
+    'act_to_attack_type', Base.metadata,
+    Column('terror_act', ForeignKey('terrorist_act.id')),
+    Column('attack_type', ForeignKey('attack_type.id'))
+)
+
+
 class PrimaryKeyBase:
     id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -155,13 +162,15 @@ class TerroristAct(Base):
     num_perp_killed = Column(Integer())
     num_perp_wounded = Column(Integer())
 
+    attack_types = relationship(AttackType, secondary=act_to_attack_types)
+
     success = Column(Boolean())
     suicide = Column(Boolean())
     motive = Column(String(length=512))
 
     prop_dam = Column(Boolean())
     prop_dam_ext = Column(Integer(), ForeignKey('property_damage_extent.id'))
-    prop_dam_value = Column(Integer())
+    prop_dam_value = Column(BigInteger())
     prop_comment = Column(String(length=1024))
 
     hostages = Column(Boolean())
