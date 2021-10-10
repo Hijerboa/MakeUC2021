@@ -16,7 +16,7 @@ import random
 import time
 import math
 import numpy as np
-from utils.about import 
+from utils.about import get_about
 
 if __name__ == '__main__':
     conn.initialize()
