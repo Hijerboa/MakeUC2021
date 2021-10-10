@@ -261,7 +261,7 @@ about_layout = html.Div(children=[
     )
 ])
 
-ref_children = [about_content['References'][0], html.Br()]
+ref_children = [html.A('Global Terrorism Database', href=about_content['References'][0], target="_blank"), html.Br()]
 for reason in about_content[
     'Reason'
     ]:
@@ -377,4 +377,4 @@ def display_hover_data(hoverData):
     return ret_elems
 
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0')
+    app.run_server(debug=False,)# host='0.0.0.0')
