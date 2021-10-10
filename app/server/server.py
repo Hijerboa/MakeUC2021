@@ -23,7 +23,7 @@ def get_df():
     session = conn.create_session()
 
     start = time.time()
-    res = session.query(TerroristAct).limit(1000).all()
+    res = session.query(TerroristAct).limit(10000).all()
     t_query = time.time()
     print(f'Query took {t_query - start} seconds.')
     
@@ -67,10 +67,9 @@ def get_df():
     print('Data loaded.')
     session.close()
 
-def get_fig():
-    global df
-    fig = px.scatter_mapbox(df, lat='Latitude', lon='Longitude',
-                            center=dict(lat=0, lon=180), zoom=1,
+def get_fig(frame):
+    fig = px.scatter_mapbox(frame, lat='Latitude', lon='Longitude',
+                            center=dict(lat=45, lon=0), zoom=3,
                             mapbox_style="dark", 
                             color='Has Casualties',
                             hover_data={
@@ -97,6 +96,7 @@ def get_fig():
     return fig
 
 def get_app():
+    global df
     app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
     px.set_mapbox_access_token(get_secret("mapbox_api_key"))
     get_df()
@@ -117,10 +117,18 @@ def get_app():
         html.Div(id='page-content')
     ])
 
+
+
+
+
+    min_year = df['Date'].min().year
+    max_year = df['Date'].max().year + 1
+    marks = {(y-min_year)*12 : str(y) for y in range(min_year, max_year+1)}
+    max_months = (max_year - min_year) * 12
+
     index_layout = html.Div(children=[
-        html.H1(id='index-header', children='Main Page', ),
-        dcc.RangeSlider(id='date-slider', min=0, max=100, value=[0,20]),
-        dcc.Graph(id='map-graph', figure=get_fig()),
+        dcc.RangeSlider(id='date-slider', min=0, max=max_months, value=[0,max_months], marks=marks),
+        dcc.Graph(id='map-graph', figure=get_fig(df), style={'height':'50vh'}),
         html.Div(id='summary-container', children='')
     ])
 
@@ -144,12 +152,18 @@ def get_app():
     @app.callback(
         dash.dependencies.Output('map-graph', 'figure'),
         dash.dependencies.Input('date-slider', 'value'),
+        dash.dependencies.Input('date-slider', 'max'),
         dash.dependencies.Input('map-graph', 'figure')
     )
-    def filter_by_time(dates, fig):
-        print('changing range')
+    def filter_by_time(dates, maxdate, fig):  
+        filtered = df[(df['Date'] > pd.to_datetime(f'{df["Date"].min().year}-01-01')+pd.DateOffset(months=min(dates))) & (df['Date'] <  pd.to_datetime(f'{df["Date"].min().year}-01-01')+pd.DateOffset(months=max(dates)))]
+        if filtered.empty:
+            if maxdate - min(dates) <= min(dates):
+                filtered = df[df['Date'] == df['Date'].max()]
+            else:
+                filtered = df[df['Date'] == df['Date'].min()]
+        fig = get_fig(filtered)
         return fig
-
 
     @app.callback(
         dash.dependencies.Output('summary-container', 'children'),
