@@ -131,15 +131,24 @@ def get_app():
     ])
 
     index_layout = html.Div(children=[
-        html.H1(id='index-header', children='Main Page', ),
         dcc.RangeSlider(id='date-slider', min=0, max=100, value=[0,20]),
-        dcc.Graph(id='map-graph', figure=get_fig()),
+        dcc.Graph(id='map-graph', figure=get_fig(), style={'height': '55vh'}),
         html.Div(id='summary-container', children='')
     ])
 
     about_layout = html.Div(children=[
-        html.H1(id='about-header', children='Welcome to our about page!'),
-        html.P(id='about-text', children='text')
+        html.H3(id='about-header', children='About the Devs', 
+            style={'text-align': 'center',
+            'padding-top': '20px'}),
+        html.P(id='about-text', 
+            children=
+             """this is a very\n
+                long string is the\n
+                example from stackoverflow""",
+            className='bio-text',
+            style={'font-size': 'x-large',
+            
+            })
     ])
 
     ref_layout = html.Div(children=[

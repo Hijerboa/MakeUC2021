@@ -11,3 +11,7 @@
 a:hover {
     text-decoration: none;
 }
+
+.bio-text {
+    text-align: center;
+}
