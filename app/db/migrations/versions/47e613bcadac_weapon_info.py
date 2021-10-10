@@ -38,7 +38,6 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['weapon_type'], ['weapon_type.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.add_column('terrorist_act', sa.Column('additional_notes', sa.String(length=2048), nullable=True))
     op.add_column('terrorist_act', sa.Column('hostages', sa.Boolean(), nullable=True))
     op.add_column('terrorist_act', sa.Column('num_hostages', sa.Integer(), nullable=True))
     op.add_column('terrorist_act', sa.Column('num_hostages_us', sa.Integer(), nullable=True))
@@ -48,7 +47,6 @@ def upgrade() -> None:
     op.add_column('terrorist_act', sa.Column('prop_dam_value', sa.Integer(), nullable=True))
     op.add_column('terrorist_act', sa.Column('ransom', sa.Integer(), nullable=True))
     op.add_column('terrorist_act', sa.Column('ransom_amt', sa.Integer(), nullable=True))
-    op.add_column('terrorist_act', sa.Column('weapon_detail', sa.String(length=1024), nullable=True))
     op.create_foreign_key(None, 'terrorist_act', 'property_damage_extent', ['prop_dam_ext'], ['id'])
     # ### end Alembic commands ###
 def downgrade() -> None:
