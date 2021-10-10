@@ -39,7 +39,8 @@ def run_migrations_online() -> None:
     with connectable.connect() as connection:
         alembic.context.configure(
             connection=connection,
-            target_metadata=target_metadata
+            target_metadata=target_metadata,
+            compare_type=True
         )
         with alembic.context.begin_transaction():
             alembic.context.run_migrations()
