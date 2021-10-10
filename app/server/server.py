@@ -1,3 +1,4 @@
+from dash.html import Frameset
 from utils.cred_handler import get_secret
 from db import models, database_connection
 import dash
@@ -10,10 +11,11 @@ from sqlalchemy.sql import func
 import dash_daq as daq
 import dash_bootstrap_components as dbc
 import db.database_connection as conn
-from db.models import TerroristAct
+from db.models import TerroristAct, Region
 import random
 import time
 import math
+import numpy as np
 
 df = pd.DataFrame({})
 
@@ -23,7 +25,24 @@ def get_df():
     session = conn.create_session()
 
     start = time.time()
-    res = session.query(TerroristAct).limit(10000).all()
+    res = session.query(
+        TerroristAct.date, 
+        TerroristAct.latitude, 
+        TerroristAct.longitude, 
+        TerroristAct.summary, 
+        TerroristAct.num_killed, 
+        TerroristAct.num_injured, 
+        TerroristAct.prop_dam_value, 
+        TerroristAct.prop_comment,
+        TerroristAct.num_hostages,
+        TerroristAct.ransom_amt,
+        Region.name).\
+            where(TerroristAct.region == Region.id).\
+                all()
+
+                #order_by(func.random()).\
+                #    limit(10000).all()
+
     t_query = time.time()
     print(f'Query took {t_query - start} seconds.')
     
@@ -34,6 +53,11 @@ def get_df():
     summaries = [r.summary for r in res]
     killed_counts = [r.num_killed for r in res]
     injured_counts = [r.num_injured for r in res]
+    region_names = [r.name for r in res]
+    prop_dam_values = [r.prop_dam_value for r in res]
+    prop_dam_comments = [r.prop_comment for r in res]
+    hostages = [r.num_hostages for r in res]
+    ransoms = [r.ransom_amt for r in res]
 
     cas_counts = [(k if not k == None else 0) + (w if not w == None else 0) for k, w in zip(killed_counts, injured_counts)]
     log_cas_counts = [math.log(c) + 1 if c > 0 else 1 for c in cas_counts]
@@ -59,27 +83,37 @@ def get_df():
         'Killed': killed_counts,
         'Injured': injured_counts,
         'Summary': summaries,
-        'Has Casualties': has_casualties
-    })
+        'Has Casualties': has_casualties,
+        'Region': region_names,
+        'Damage Value': prop_dam_values,
+        'Damage Comments': prop_dam_comments,
+        'Hostages': hostages,
+        'Ransom': ransoms
+    }).sort_values(by=['Has Casualties'])
     end = time.time()
     print(f'Processing took {end - t_query} seconds.')
     print(f'Total load took {end - start} seconds.')
     print('Data loaded.')
     session.close()
 
-def get_fig(frame):
-    fig = px.scatter_mapbox(frame, lat='Latitude', lon='Longitude',
+def get_heatmap_fig(df):
+    frame = df[df['Has Casualties']]
+    fig = px.density_mapbox(frame, lat='Latitude', lon='Longitude', z='Casualties (x 10^n)', radius=5,
                             center=dict(lat=45, lon=0), zoom=3,
                             mapbox_style="dark", 
-                            color='Has Casualties',
                             hover_data={
                                 'Latitude': False,
                                 'Longitude': False,
+                                'Casualties (x 10^n)': False,
                                 'Date': True,
                                 'Casualties': True,
+                                'Damage Value': False,
+                                'Damage Comments': False,
                                 'Killed': False,
                                 'Injured': False,
-                                'Summary': False
+                                'Summary': False,
+                                'Hostages': False,
+                                'Ransom': False
                             })
 
     fig.update_layout(
@@ -93,6 +127,62 @@ def get_fig(frame):
         )
     )
 
+    return fig
+
+def get_map_fig(df):
+    fig = px.scatter_mapbox(df, lat='Latitude', lon='Longitude',
+                            center=dict(lat=45, lon=0), zoom=3,
+                            mapbox_style="dark", 
+                            color='Has Casualties',
+                            hover_data={
+                                'Latitude': False,
+                                'Longitude': False,
+                                'Date': True,
+                                'Casualties': True,
+                                'Damage Value': False,
+                                'Damage Comments': False,
+                                'Killed': False,
+                                'Injured': False,
+                                'Summary': False,
+                                'Hostages': False,
+                                'Ransom': False
+                            })
+
+    fig.update_layout(
+        margin=dict(l=0,r=0,b=0,t=0),
+        paper_bgcolor="Black",
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01
+        )
+    )
+
+    return fig
+
+def get_dbr_fig(df):
+    frame = df.groupby(['Region'], as_index=False).aggregate(np.sum)
+    fig = px.bar(frame, x='Region', y=['Damage Value', 'Ransom'], title="Reported Monetary Damages By World Region In Selected Timeframe")
+    fig.update_layout(
+        yaxis_title='Value (USD)',
+        xaxis_title='',
+        margin=dict(l=0,r=0,b=0),
+        paper_bgcolor="Black",
+        plot_bgcolor="Black",
+    )
+    return fig
+
+def get_dmg_fig(df):
+    frame = df.groupby(['Region'], as_index=False).aggregate(np.sum)
+    fig = px.bar(frame, x='Region', y=['Killed', 'Injured'], title="Reported Casualties By World Region In Selected Timeframe")
+    fig.update_layout(
+        yaxis_title='Count',
+        xaxis_title='',
+        margin=dict(l=0,r=0,b=0),
+        paper_bgcolor="Black",
+        plot_bgcolor="Black",
+    )
     return fig
 
 def get_app():
@@ -130,10 +220,6 @@ def get_app():
         html.Div(id='page-content')
     ])
 
-
-
-
-
     min_year = df['Date'].min().year
     max_year = df['Date'].max().year + 1
     marks = {(y-min_year)*12 : str(y) for y in range(min_year, max_year+1)}
@@ -141,8 +227,20 @@ def get_app():
 
     index_layout = html.Div(children=[
         dcc.RangeSlider(id='date-slider', min=0, max=max_months, value=[0,max_months], marks=marks),
-        dcc.Graph(id='map-graph', figure=get_fig(df), style={'height':'50vh'}),
-        html.Div(id='summary-container', children='')
+        dcc.Graph(id='map-graph', figure=get_map_fig(df), style={'height':'50vh'}),
+        html.Div(id='bottom-container', children=[
+            dbc.Row([
+                dbc.Col([
+                    html.Div(id='summary-container', children='')
+                ]),
+                dbc.Col([
+                    dcc.Graph(id='deaths-by-region-graph', figure=get_dbr_fig(df), style={'height':'38vh'})
+                ]),
+                dbc.Col([
+                    dcc.Graph(id='damage-by-region-graph', figure=get_dmg_fig(df), style={'height':'38vh'})
+                ]),
+            ])
+        ])
     ])
 
     about_layout = html.Div(children=[
@@ -171,49 +269,89 @@ def get_app():
 
     @app.callback(
         dash.dependencies.Output('map-graph', 'figure'),
+        dash.dependencies.Output('deaths-by-region-graph', 'figure'),
+         dash.dependencies.Output('damage-by-region-graph', 'figure'),
         dash.dependencies.Input('date-slider', 'value'),
         dash.dependencies.Input('date-slider', 'max'),
-        dash.dependencies.Input('map-graph', 'figure')
     )
-    def filter_by_time(dates, maxdate, fig):  
+    def filter_by_time(dates, maxdate):  
         filtered = df[(df['Date'] > pd.to_datetime(f'{df["Date"].min().year}-01-01')+pd.DateOffset(months=min(dates))) & (df['Date'] <  pd.to_datetime(f'{df["Date"].min().year}-01-01')+pd.DateOffset(months=max(dates)))]
         if filtered.empty:
             if maxdate - min(dates) <= min(dates):
                 filtered = df[df['Date'] == df['Date'].max()]
             else:
                 filtered = df[df['Date'] == df['Date'].min()]
-        fig = get_fig(filtered)
-        return fig
+        #fig = get_heatmap_fig(filtered)
+        fig = get_map_fig(filtered) #Currently the way I choose heatmap v Scatterplot
+        fig2 = get_dbr_fig(filtered)
+        fig3 = get_dmg_fig(filtered)
+        return fig, fig2, fig3
 
     @app.callback(
         dash.dependencies.Output('summary-container', 'children'),
         dash.dependencies.Input('map-graph', 'hoverData'))
     def display_hover_data(hoverData):
         #print(hoverData)
-        summary = hoverData['points'][0]['customdata'][6]
-        injured = hoverData['points'][0]['customdata'][5]
-        killed = hoverData['points'][0]['customdata'][4]
-        
+        #print()
+        header = html.H4(id='details-header', children='Attack Details')
+        if hoverData == None:
+            return [header]
+        summary = hoverData['points'][0]['customdata'][8]
+        injured = hoverData['points'][0]['customdata'][7]
+        killed = hoverData['points'][0]['customdata'][6]
+        damage = hoverData['points'][0]['customdata'][4]
+        damage_note = hoverData['points'][0]['customdata'][5]
+        hostages =  hoverData['points'][0]['customdata'][9]
+        ransom = hoverData['points'][0]['customdata'][10]
+
+        if hostages == None:
+            hostages = 'None reported'
+        elif hostages == '0':
+            hostages = 'No hostages'
+
+        if ransom == None or ransom < 0:
+            ransom = 'No reported ransom'
+
+        if damage == None or damage < 0:
+            damage = 'No reported value'
+        else:
+            damage = f'${damage} USD'
+
         if injured == None:
-            injured = 'None Reported'
+            injured = 'None reported'
         elif injured == '0':
-            injured = 'No injuries.'
+            injured = 'No injuries'
 
         if killed == None:
-            killed = 'None Reported'
+            killed = 'None reported'
         elif killed == '0':
-            killed = 'No deaths.'
+            killed = 'No deaths'
 
         if summary == '' or summary == None:
-            summary = 'No summary available.'
+            summary = 'No summary available'
 
         #print(summary)
+        kill_elem = html.Div(id='kill-count-text', children=f'Deaths: {killed}')
+        injured_elem = html.Div(id='injured-count-text', children=f'Injuries: {injured}')
+        hostages_elem = html.Div(id='hostage-count-text', children=f'Hostages: {hostages}')
+        ret_elems = [header,kill_elem, injured_elem, hostages_elem]
 
-        kill_elem = html.P(id='kill-count-text', children=f'Deaths: {killed}')
-        injured_elem = html.P(id='injured-count-text', children=f'Injuries: {injured}')
-        summary_elem = html.P(id='summary-text', children=summary)
+        if not (hostages == 'None reported' or hostages =='No hostages'):
+            ransom_elem = html.Div(id='ransom-text', children=f'Ransom: {ransom}')
+            ret_elems.append(ransom_elem)
 
-        return [kill_elem, injured_elem, summary_elem]
+        damage_elem = html.Div(id='damage-value-text', children=f'Monetary Damages: {damage}')
+        ret_elems.append(damage_elem)
+
+        if not damage_note == None:
+            damage_note_elem = html.Div(id='damage-note-text', children=f'Note: {damage_note}')
+            ret_elems.append(html.Br())
+            ret_elems.append(damage_note_elem)
+        summary_elem = html.Div(id='summary-text', children=summary)
+        ret_elems.append(html.Br())
+        ret_elems.append(summary_elem)
+
+        return ret_elems
 
     return app
 
