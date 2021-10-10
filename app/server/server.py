@@ -16,6 +16,7 @@ import random
 import time
 import math
 import numpy as np
+from db.database_connection import initialize
 
 df = pd.DataFrame({})
 
@@ -186,6 +187,7 @@ def get_dmg_fig(df):
     return fig
 
 def get_app():
+    initialize()
     global df
     app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
     px.set_mapbox_access_token(get_secret("mapbox_api_key"))
