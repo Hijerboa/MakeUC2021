@@ -1,11 +1,10 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, ForeignKey, String, Boolean, Float, UniqueConstraint, LargeBinary, \
-    Table, DateTime, Date
+    Table, DateTime, Date, BigInteger
 from sqlalchemy.orm import relationship
 import datetime
 
 Base = declarative_base()
-
 
 class PrimaryKeyBase:
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -53,14 +52,27 @@ class Location(Base):
     name = Column(String(length=512), nullable=False)
 
 
+class AlternativeDesignation(Base):
+    __tablename__ = 'alt_designation'
+
+    id = Column(Integer(), nullable=False, primary_key=True)
+    description = Column(String(length=64), nullable=False)
+
+
+class AttackType(Base):
+    __tablename__ = 'attack_type'
+
+    id = Column(Integer(), nullable=False, primary_key=True)
+    name = Column(String(length=512), nullable=False)
+
 class TerroristAct(Base):
     __tablename__ = 'terrorist_act'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger(), primary_key=True)
     date = Column(Date(), nullable=False)
     approx_date = Column(String(length=64), nullable=True)
     extended = Column(Boolean(), nullable=False)
-    resolution = Column(Integer(), nullable=True)
+    resolution = Column(Date(), nullable=True)
     country = Column(Integer(), ForeignKey('country.id'))
     region = Column(Integer(), ForeignKey('region.id'))
     prov_state = Column(Integer(), ForeignKey('prov_state.id'))
@@ -69,5 +81,15 @@ class TerroristAct(Base):
     longitude = Column(Float(), nullable=False)
     specificity = Column(Integer(), ForeignKey('specificity.id'), nullable=False)
     vicinity = Column(Boolean(), nullable=True)
-    location = Column(Integer(), ForeignKey('location.id'), nullable=False)
+    location = Column(Integer(), ForeignKey('location.id'), nullable=True)
     summary = Column(String(length=4096), nullable=True)
+    doubt_terrorism = Column(Boolean(), nullable=True)
+    alt_designation = Column(Integer(), ForeignKey('alt_designation.id'))
+    part_of_multiple = Column(Boolean())
+
+    num_killed = Column(Integer())
+    num_killed_us = Column(Integer())
+    num_injured = Column(Integer())
+    num_injured_us = Column(Integer())
+    num_perp_killed = Column(Integer())
+    num_perp_wounded = Column(Integer())

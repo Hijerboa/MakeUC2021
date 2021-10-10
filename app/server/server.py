@@ -9,18 +9,68 @@ import sqlalchemy as db
 from sqlalchemy.sql import func
 import dash_daq as daq
 import dash_bootstrap_components as dbc
+import db.database_connection as conn
+from db.models import TerroristAct
+import random
+import time
+import math
 
 def get_fig():
-    df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/earthquakes-23k.csv') # Placeholder
+    session = conn.create_session()
 
-    fig = px.density_mapbox(df, lat='Latitude', lon='Longitude', z='Magnitude', radius=10,
+    start = time.time()
+    res = session.query(TerroristAct).all()
+
+    dates = [r.date for r in res]
+    lats = [r.latitude for r in res]
+    lngs = [r.longitude for r in res]
+    summaries = [r.summary for r in res]
+    cas_counts = [1 for _ in res]
+
+    #random circular offsets:
+    us = [random.random() + random.random() for _ in res]
+    rs = [0.1 * (2 - u if u > 1 else u) for u in us]
+    thetas = [random.random() * 2 * math.pi for _ in res]
+    x_off = [r * math.cos(theta) for r, theta in zip(rs, thetas)]
+    y_off = [r * math.sin(theta) for r, theta in zip(rs, thetas)]
+
+    #add offsets
+    lats = [lat + x for lat, x in zip(lats, x_off)]
+    lngs = [lng + y for lng, y in zip(lngs, y_off)]
+
+    print(len(res))
+    print(len(lats))
+    print(len(lngs))
+
+    df = pd.DataFrame({
+        'Date': dates,
+        'Latitude': lats,
+        'Longitude': lngs,
+        'Casualties': cas_counts,
+        'Summary': summaries
+    })
+
+    print('data loaded')
+    #df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/earthquakes-23k.csv') # Placeholder
+
+    fig = px.density_mapbox(df, lat='Latitude', lon='Longitude', z='Casualties', radius=3,
                             center=dict(lat=0, lon=180), zoom=1,
-                            mapbox_style="dark")
+                            mapbox_style="dark", 
+                            hover_data={
+                                'Latitude': False,
+                                'Longitude': False,
+                                'Date': True,
+                                'Casualties': True,
+                                'Summary': True
+                            })
 
+    print('data plotted')
     fig.update_layout(
         margin=dict(l=0,r=0,b=0,t=0),
         paper_bgcolor="Black"
     )
+    end = time.time()
+    print(f'Took {end - start} seconds.')
 
     return fig
 
