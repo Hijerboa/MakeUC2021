@@ -158,7 +158,6 @@ class TerroristAct(Base):
     success = Column(Boolean())
     suicide = Column(Boolean())
     motive = Column(String(length=512))
-    weapon_detail = Column(String(length=1024))
 
     prop_dam = Column(Boolean())
     prop_dam_ext = Column(Integer(), ForeignKey('property_damage_extent.id'))
@@ -170,6 +169,4 @@ class TerroristAct(Base):
     num_hostages_us = Column(Integer())
     ransom = Column(Integer())
     ransom_amt = Column(Integer())
-
-    additional_notes = Column(String(length=2048))
 
