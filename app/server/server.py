@@ -15,11 +15,15 @@ import random
 import time
 import math
 
-def get_fig():
+df = pd.DataFrame({})
+
+def get_df():
+    print("Starting DB query.")
+    global df
     session = conn.create_session()
 
     start = time.time()
-    res = session.query(TerroristAct).limit(10000).all()
+    res = session.query(TerroristAct).limit(1000).all()
     t_query = time.time()
     print(f'Query took {t_query - start} seconds.')
     
@@ -46,12 +50,8 @@ def get_fig():
     lats = [lat + x for lat, x in zip(lats, x_off)]
     lngs = [lng + y for lng, y in zip(lngs, y_off)]
 
-    print(len(res))
-    print(len(lats))
-    print(len(lngs))
-
     df = pd.DataFrame({
-        'Date': dates,
+        'Date': pd.to_datetime(dates),
         'Latitude': lats,
         'Longitude': lngs,
         'Casualties': cas_counts,
@@ -61,10 +61,14 @@ def get_fig():
         'Summary': summaries,
         'Has Casualties': has_casualties
     })
+    end = time.time()
+    print(f'Processing took {end - t_query} seconds.')
+    print(f'Total load took {end - start} seconds.')
+    print('Data loaded.')
+    session.close()
 
-    print('data loaded')
-    #df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/earthquakes-23k.csv') # Placeholder
-
+def get_fig():
+    global df
     fig = px.scatter_mapbox(df, lat='Latitude', lon='Longitude',
                             center=dict(lat=0, lon=180), zoom=1,
                             mapbox_style="dark", 
@@ -79,19 +83,23 @@ def get_fig():
                                 'Summary': False
                             })
 
-    print('data plotted')
     fig.update_layout(
         margin=dict(l=0,r=0,b=0,t=0),
-        paper_bgcolor="Black"
+        paper_bgcolor="Black",
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01
+        )
     )
-    end = time.time()
-    print(f'Took {end - start} seconds.')
 
     return fig
 
 def get_app():
     app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
     px.set_mapbox_access_token(get_secret("mapbox_api_key"))
+    get_df()
 
     app.layout = html.Div([
         dcc.Location(id='url', refresh=False),
@@ -111,7 +119,7 @@ def get_app():
 
     index_layout = html.Div(children=[
         html.H1(id='index-header', children='Main Page', ),
-        daq.Slider(id='date-slider', min=0, max=100, value=20),
+        dcc.RangeSlider(id='date-slider', min=0, max=100, value=[0,20]),
         dcc.Graph(id='map-graph', figure=get_fig()),
         html.Div(id='summary-container', children='')
     ])
@@ -134,10 +142,20 @@ def get_app():
     # You could also return a 404 "URL not found" page here
 
     @app.callback(
+        dash.dependencies.Output('map-graph', 'figure'),
+        dash.dependencies.Input('date-slider', 'value'),
+        dash.dependencies.Input('map-graph', 'figure')
+    )
+    def filter_by_time(dates, fig):
+        print('changing range')
+        return fig
+
+
+    @app.callback(
         dash.dependencies.Output('summary-container', 'children'),
         dash.dependencies.Input('map-graph', 'hoverData'))
     def display_hover_data(hoverData):
-        print(hoverData)
+        #print(hoverData)
         summary = hoverData['points'][0]['customdata'][6]
         injured = hoverData['points'][0]['customdata'][5]
         killed = hoverData['points'][0]['customdata'][4]
