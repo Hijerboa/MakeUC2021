@@ -4,3 +4,4 @@ MakeUC2021
 app/*/__pycache__
 app/scripts/data.csv
 app/TestNotebook.ipynb
+app/scripts/data.csv:Zone.Identifier
