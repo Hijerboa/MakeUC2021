@@ -31,15 +31,28 @@ def get_app():
     app.layout = html.Div([
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='points', ),
-        dbc.NavbarSimple(
-            id = 'navbar',
-            children=[
-                dbc.NavItem(dbc.NavLink("About", id='about-link', href='/about'))
+        dbc.Navbar(
+            [
+                html.A(
+                    [
+                        html.Img(src=app.get_asset_url('TTT.png'), height='30px'),
+                        dbc.NavbarBrand("errorism Tracker")
+                    ],
+                    href='/',
+                    style={'display': 'flex', 'align-items': 'center'}
+                ),
+                dbc.ListGroup(
+                    [
+                        dbc.ListGroupItem("About Us", id='about-link', href='/about'),
+                        dbc.ListGroupItem("References", id='ref-link', href='/reference'),
+                    ],
+                    horizontal=True,
+                )
             ],
-            brand='INSERT NAME HERE',
-            brand_href='/',
-            color='secondary',
-            dark=True
+            color="secondary",
+            dark=True,
+            className='d-flex',
+            style={'justify-content': 'space-between'}
         ),
         html.Div(id='page-content')
     ])
@@ -55,6 +68,11 @@ def get_app():
         html.P(id='about-text', children='text')
     ])
 
+    ref_layout = html.Div(children=[
+        html.H1(id='ref-header', children='Welcome to our reference page!'),
+        html.P(id='ref-text', children='text')
+    ])
+
     # Update the index
     @app.callback(dash.dependencies.Output('page-content', 'children'),
                 [dash.dependencies.Input('url', 'pathname')])
@@ -63,6 +81,8 @@ def get_app():
             return index_layout
         elif pathname == '/about':
             return about_layout
+        elif pathname == '/reference':
+            return ref_layout
         else:
             return index_layout
     # You could also return a 404 "URL not found" page here

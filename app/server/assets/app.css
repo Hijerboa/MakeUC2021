@@ -1,0 +1,17 @@
+.navbar {
+
+}
+
+.list-group-item {
+    color: white;
+    font-size: large;
+    background-color: gray;
+}
+
+.navbar-brand {
+    font-size: x-large;
+}
+
+a:hover {
+    text-decoration: none;
+}
