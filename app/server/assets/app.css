@@ -15,3 +15,13 @@ a:hover {
 .bio-text {
     text-align: center;
 }
+
+#about-text, #ref-text {
+    font-size: x-large;
+    text-align: center;
+}
+
+#about-header, #ref-header {
+    text-align: center;
+    padding-top: 20px;
+}

@@ -1,4 +1,5 @@
 from dash.html import Frameset
+from utils.about import get_about
 from utils.cred_handler import get_secret
 from db import models, database_connection
 import dash
@@ -38,7 +39,7 @@ def get_df():
         TerroristAct.ransom_amt,
         Region.name).\
             where(TerroristAct.region == Region.id).\
-                all()
+                limit(10000)
 
                 #order_by(func.random()).\
                 #    limit(10000).all()
@@ -243,24 +244,35 @@ def get_app():
         ])
     ])
 
+    about_children = []
+    about_content = get_about()
+    for i, contributor in enumerate(about_content['Contributors']):
+        contribution = about_content['Contributions'][i]
+        contrib_content = f'{contributor} - {contribution}'
+        about_children.append(html.Span(contrib_content))
+        about_children.append(html.Br())
+
     about_layout = html.Div(children=[
-        html.H3(id='about-header', children='About the Devs', 
-            style={'text-align': 'center',
-            'padding-top': '20px'}),
-        html.P(id='about-text', 
-            children=
-             """this is a very\n
-                long string is the\n
-                example from stackoverflow""",
-            className='bio-text',
-            style={'font-size': 'x-large',
-            
-            })
+        html.H3(id='about-header', children='About the Devs'),
+        html.P(id='about-text', children=
+            about_children,
+            className='page-text'
+        )
     ])
 
+    ref_children = [about_content['References'][0], html.Br()]
+    for reason in about_content[
+        'Reason'
+        ]:
+        ref_children.append(html.Span(reason))
+        ref_children.append(html.Br())
+
     ref_layout = html.Div(children=[
-        html.H1(id='ref-header', children='Welcome to our reference page!'),
-        html.P(id='ref-text', children='text')
+        html.H3(id='ref-header', children='References'),
+        html.P(id='ref-text', children=
+            ref_children,
+            className='page-text'
+        )
     ])
 
     # Update the index
