@@ -42,9 +42,8 @@ def get_df():
         TerroristAct.ransom_amt,
         Region.name).\
             where(TerroristAct.region == Region.id).\
-                all()
-                #order_by(func.random()).\
-                #    limit(10000).all()
+                order_by(func.random()).\
+                    limit(10000).all()
 
     t_query = time.time()
     print(f'Query took {t_query - start} seconds.')
@@ -166,7 +165,7 @@ def get_map_fig(df):
 
 def get_dbr_fig(df):
     frame = df.groupby(['Region'], as_index=False).aggregate(np.sum)
-    fig = px.bar(frame, x='Region', y=['Damage Value', 'Ransom'], title="Reported Monetary Damages By World Region In Selected Timeframe")
+    fig = px.bar(frame, x='Region', y=['Damage Value', 'Ransom'], title="Reported Monetary Damages By World Region In Timeframe")
     fig.update_layout(
         yaxis_title='Value (USD)',
         xaxis_title='',
@@ -178,7 +177,7 @@ def get_dbr_fig(df):
 
 def get_dmg_fig(df):
     frame = df.groupby(['Region'], as_index=False).aggregate(np.sum)
-    fig = px.bar(frame, x='Region', y=['Killed', 'Injured'], title="Reported Casualties By World Region In Selected Timeframe")
+    fig = px.bar(frame, x='Region', y=['Killed', 'Injured'], title="Reported Casualties By World Region In Timeframe")
     fig.update_layout(
         yaxis_title='Count',
         xaxis_title='',
@@ -237,10 +236,10 @@ index_layout = html.Div(children=[
                 html.Div(id='summary-container', children='')
             ]),
             dbc.Col([
-                dcc.Graph(id='deaths-by-region-graph', figure=get_dbr_fig(df), style={'height':'38vh'})
+                dcc.Graph(id='deaths-by-region-graph', figure=get_dbr_fig(df), style={'height':'37vh'})
             ]),
             dbc.Col([
-                dcc.Graph(id='damage-by-region-graph', figure=get_dmg_fig(df), style={'height':'38vh'})
+                dcc.Graph(id='damage-by-region-graph', figure=get_dmg_fig(df), style={'height':'37vh'})
             ]),
         ])
     ])
@@ -378,4 +377,4 @@ def display_hover_data(hoverData):
     return ret_elems
 
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0')
+    app.run_server(debug=False)
